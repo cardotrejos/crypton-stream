@@ -80,8 +80,6 @@ defmodule CryptoStreamWeb.MarketControllerTest do
     end
 
     test "returns error for missing parameters", %{conn: conn} do
-      expect(CryptoStream.Services.MockCoingeckoClient, :supported_coin?, fn "bitcoin" -> true end)
-
       conn = get(conn, ~p"/api/historical/bitcoin")
       response = json_response(conn, 400)
       assert response["error"] =~ "Missing date parameters"
