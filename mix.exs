@@ -48,7 +48,9 @@ defmodule CryptoStream.MixProject do
       {:open_api_spex, "~> 3.21"},
       {:bcrypt_elixir, "~> 3.0"},
       {:guardian, "~> 2.3"},
-      {:httpoison, "~> 2.0"}
+      {:httpoison, "~> 2.0"},
+      {:mox, "~> 1.0", only: :test},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 

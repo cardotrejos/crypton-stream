@@ -36,3 +36,6 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Configure CoingeckoClient mock for testing
+config :crypto_stream, :coingecko_client, CryptoStream.Services.MockCoingeckoClient

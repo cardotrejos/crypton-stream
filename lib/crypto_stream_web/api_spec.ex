@@ -1,8 +1,8 @@
 defmodule CryptoStreamWeb.ApiSpec do
   alias OpenApiSpex.{Components, Info, OpenApi, Server}
   alias CryptoStreamWeb.Endpoint
+  alias CryptoStreamWeb.Schemas.{User, UserRequest, UserResponse, LoginRequest, ErrorResponse}
   alias CryptoStreamWeb.Schemas.Market.{PriceResponse, HistoricalPriceResponse}
-  alias CryptoStreamWeb.Schemas.User.{UserRequest, UserResponse, LoginRequest, ErrorResponse}
 
   @behaviour OpenApi
 
@@ -20,6 +20,7 @@ defmodule CryptoStreamWeb.ApiSpec do
       paths: paths(),
       components: %Components{
         schemas: %{
+          User: User,
           UserRequest: UserRequest,
           UserResponse: UserResponse,
           LoginRequest: LoginRequest,
