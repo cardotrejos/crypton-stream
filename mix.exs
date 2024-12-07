@@ -45,7 +45,9 @@ defmodule CryptoStream.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:open_api_spex, "~> 3.21"}
+      {:open_api_spex, "~> 3.21"},
+      {:bcrypt_elixir, "~> 3.0"},
+      {:guardian, "~> 2.3"}
     ]
   end
 

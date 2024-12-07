@@ -26,6 +26,8 @@ defmodule CryptoStreamWeb.Router do
 
   scope "/api", CryptoStreamWeb do
     pipe_through :api
+    post "/register", AuthController, :register
+    post "/login", AuthController, :login
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
