@@ -1,11 +1,13 @@
 defmodule CryptoStreamWeb.ApiSpec do
   alias OpenApiSpex.{Components, Info, OpenApi, Server}
   alias CryptoStreamWeb.Endpoint
-  alias CryptoStreamWeb.Schemas.{User, UserRequest, UserResponse, LoginRequest, ErrorResponse}
+  alias CryptoStreamWeb.Schemas.Market.{PriceResponse, HistoricalPriceResponse}
+  alias CryptoStreamWeb.Schemas.User.{UserRequest, UserResponse, LoginRequest, ErrorResponse}
 
   @behaviour OpenApi
 
   @impl OpenApi
+  @spec spec() :: OpenApi.t()
   def spec do
     %OpenApi{
       servers: [
@@ -18,11 +20,12 @@ defmodule CryptoStreamWeb.ApiSpec do
       paths: paths(),
       components: %Components{
         schemas: %{
-          User: User,
           UserRequest: UserRequest,
           UserResponse: UserResponse,
           LoginRequest: LoginRequest,
-          ErrorResponse: ErrorResponse
+          ErrorResponse: ErrorResponse,
+          PriceResponse: PriceResponse,
+          HistoricalPriceResponse: HistoricalPriceResponse
         }
       }
     }
@@ -54,6 +57,61 @@ defmodule CryptoStreamWeb.ApiSpec do
           responses: %{
             200 => response("Login successful", UserResponse),
             401 => response("Invalid credentials", ErrorResponse)
+          }
+        }
+      },
+      "/api/prices" => %OpenApiSpex.PathItem{
+        get: %OpenApiSpex.Operation{
+          tags: ["Market Data"],
+          summary: "Get current prices",
+          description: "Get current USD prices for supported cryptocurrencies (BTC, SOL)",
+          operationId: "MarketController.get_prices",
+          responses: %{
+            200 => response("Current prices", PriceResponse),
+            500 => response("Server error", ErrorResponse)
+          }
+        }
+      },
+      "/api/historical/{coin_id}" => %OpenApiSpex.PathItem{
+        get: %OpenApiSpex.Operation{
+          tags: ["Market Data"],
+          summary: "Get historical prices",
+          description: "Get historical USD prices for a specific cryptocurrency",
+          operationId: "MarketController.get_historical_prices",
+          parameters: [
+            %OpenApiSpex.Parameter{
+              in: :path,
+              name: :coin_id,
+              description: "Cryptocurrency ID (bitcoin or solana)",
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string, enum: ["bitcoin", "solana"]}
+            },
+            %OpenApiSpex.Parameter{
+              in: :query,
+              name: :range,
+              description: "Predefined range (24h, 7d, 30d, 90d, 1y). If specified, from and to dates are ignored.",
+              required: false,
+              schema: %OpenApiSpex.Schema{type: :string, enum: ["24h", "7d", "30d", "90d", "1y"]}
+            },
+            %OpenApiSpex.Parameter{
+              in: :query,
+              name: :from,
+              description: "Start date in ISO 8601 format (e.g., 2024-01-01T00:00:00Z). Required if range is not specified.",
+              required: false,
+              schema: %OpenApiSpex.Schema{type: :string, format: :"date-time"}
+            },
+            %OpenApiSpex.Parameter{
+              in: :query,
+              name: :to,
+              description: "End date in ISO 8601 format (e.g., 2024-01-02T00:00:00Z). Required if range is not specified.",
+              required: false,
+              schema: %OpenApiSpex.Schema{type: :string, format: :"date-time"}
+            }
+          ],
+          responses: %{
+            200 => response("Historical prices", HistoricalPriceResponse),
+            400 => response("Bad request", ErrorResponse),
+            500 => response("Server error", ErrorResponse)
           }
         }
       }

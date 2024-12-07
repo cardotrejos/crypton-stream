@@ -6,6 +6,10 @@ defmodule CryptoStreamWeb.MarketController do
   alias CryptoStream.Utils.DateUtils
   alias OpenApiSpex.Schema
 
+  def init(action) when action in [:get_prices, :get_historical_prices] do
+    action
+  end
+
   operation :get_prices,
     summary: "Get current prices",
     description: "Get current USD prices for supported cryptocurrencies",
