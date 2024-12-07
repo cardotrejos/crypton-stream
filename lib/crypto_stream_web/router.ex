@@ -6,6 +6,10 @@ defmodule CryptoStreamWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: CryptoStreamWeb.ApiSpec
   end
 
+  pipeline :auth do
+    plug CryptoStream.Guardian.AuthPipeline
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -30,6 +34,11 @@ defmodule CryptoStreamWeb.Router do
     get "/historical/:coin_id", MarketController, :get_historical_prices
     post "/register", AuthController, :register
     post "/login", AuthController, :login
+  end
+
+  scope "/api", CryptoStreamWeb do
+    pipe_through [:api, :auth]
+    post "/trading/buy", TradingController, :buy
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

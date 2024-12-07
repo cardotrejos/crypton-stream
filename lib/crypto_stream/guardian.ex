@@ -1,5 +1,6 @@
 defmodule CryptoStream.Guardian do
   use Guardian, otp_app: :crypto_stream
+  alias CryptoStream.Repo
 
   def subject_for_token(user, _claims) do
     {:ok, to_string(user.id)}
@@ -8,7 +9,7 @@ defmodule CryptoStream.Guardian do
   def resource_from_claims(%{"sub" => id}) do
     case CryptoStream.Accounts.get_user(id) do
       nil -> {:error, :resource_not_found}
-      user -> {:ok, user}
+      user -> {:ok, Repo.preload(user, :account)}
     end
   end
 end

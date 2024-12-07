@@ -7,6 +7,7 @@ defmodule CryptoStream.Accounts.User do
     field :password, :string, virtual: true
     field :password_hash, :string
     field :username, :string
+    has_one :account, CryptoStream.Accounts.Account
 
     timestamps()
   end
