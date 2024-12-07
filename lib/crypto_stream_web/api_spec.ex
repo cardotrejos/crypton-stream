@@ -3,6 +3,7 @@ defmodule CryptoStreamWeb.ApiSpec do
   alias CryptoStreamWeb.Endpoint
   alias CryptoStreamWeb.Schemas.{User, UserRequest, UserResponse, LoginRequest, ErrorResponse}
   alias CryptoStreamWeb.Schemas.Market.{PriceResponse, HistoricalPriceResponse}
+  alias CryptoStreamWeb.Schemas.Trading.{BuyRequest, TransactionResponse}
 
   @behaviour OpenApi
 
@@ -26,7 +27,16 @@ defmodule CryptoStreamWeb.ApiSpec do
           LoginRequest: LoginRequest,
           ErrorResponse: ErrorResponse,
           PriceResponse: PriceResponse,
-          HistoricalPriceResponse: HistoricalPriceResponse
+          HistoricalPriceResponse: HistoricalPriceResponse,
+          BuyRequest: BuyRequest,
+          TransactionResponse: TransactionResponse
+        },
+        securitySchemes: %{
+          bearerAuth: %OpenApiSpex.SecurityScheme{
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: "JWT"
+          }
         }
       }
     }
@@ -112,6 +122,57 @@ defmodule CryptoStreamWeb.ApiSpec do
           responses: %{
             200 => response("Historical prices", HistoricalPriceResponse),
             400 => response("Bad request", ErrorResponse),
+            500 => response("Server error", ErrorResponse)
+          }
+        }
+      },
+      "/api/trading/buy" => %OpenApiSpex.PathItem{
+        post: %OpenApiSpex.Operation{
+          tags: ["Trading"],
+          summary: "Buy cryptocurrency",
+          description: "Buy cryptocurrency using virtual USD balance",
+          operationId: "TradingController.buy",
+          security: [%{"bearerAuth" => []}],
+          requestBody: request_body("Request body for buying cryptocurrency", BuyRequest),
+          responses: %{
+            200 => response("Purchase successful", TransactionResponse),
+            400 => response("Bad request", ErrorResponse),
+            401 => response("Unauthorized", ErrorResponse),
+            422 => response("Validation errors", ErrorResponse)
+          }
+        }
+      },
+      "/api/trading/transactions" => %OpenApiSpex.PathItem{
+        get: %OpenApiSpex.Operation{
+          tags: ["Trading"],
+          summary: "List transactions",
+          description: "List all transactions for the authenticated user",
+          operationId: "TradingController.list_transactions",
+          security: [%{"bearerAuth" => []}],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "List of transactions",
+              content: %{
+                "application/json" => %OpenApiSpex.MediaType{
+                  schema: %OpenApiSpex.Schema{
+                    type: :array,
+                    items: %OpenApiSpex.Schema{
+                      type: :object,
+                      properties: %{
+                        id: %OpenApiSpex.Schema{type: :integer, description: "Transaction ID"},
+                        type: %OpenApiSpex.Schema{type: :string, description: "Transaction type (buy/sell)"},
+                        cryptocurrency: %OpenApiSpex.Schema{type: :string, description: "Cryptocurrency symbol"},
+                        amount_crypto: %OpenApiSpex.Schema{type: :string, description: "Amount of cryptocurrency"},
+                        price_usd: %OpenApiSpex.Schema{type: :string, description: "Price per unit in USD"},
+                        total_usd: %OpenApiSpex.Schema{type: :string, description: "Total transaction value in USD"},
+                        inserted_at: %OpenApiSpex.Schema{type: :string, description: "Transaction timestamp"}
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401 => response("Unauthorized", ErrorResponse),
             500 => response("Server error", ErrorResponse)
           }
         }
