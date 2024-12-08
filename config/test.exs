@@ -35,6 +35,10 @@ config :swoosh, :api_client, false
 config :crypto_stream,
   coingecko_client: CryptoStream.Services.MockCoingeckoClient
 
+config :crypto_stream, CryptoStreamWeb.Guardian,
+  issuer: "crypto_stream",
+  secret_key: "test_secret_key_for_testing_only"
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

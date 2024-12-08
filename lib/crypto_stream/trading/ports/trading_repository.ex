@@ -4,21 +4,19 @@ defmodule CryptoStream.Trading.Ports.TradingRepository do
   This module defines the contract for the trading repository.
   """
 
-  alias CryptoStream.Trading.Domain.Transaction
-  alias CryptoStream.Accounts.Account
+  import Ecto.Query
+
   alias CryptoStream.Repo
+  alias CryptoStream.Trading.Domain.Transaction
+  alias CryptoStream.Accounts.Domain.Account
   alias Ecto.Multi
 
   @doc """
-  Gets an account by ID.
+  Gets an account by ID or returns the account if it's already a struct.
   """
-  @spec get_account(integer()) :: {:ok, Account.t()} | nil
-  def get_account(account_id) do
-    case Repo.get(Account, account_id) do
-      nil -> nil
-      account -> {:ok, account}
-    end
-  end
+  @spec get_account(integer() | Account.t()) :: {:ok, Account.t()} | {:error, atom()}
+  def get_account(%Account{} = account), do: {:ok, Repo.get!(Account, account.id)}
+  def get_account(account_id) when is_integer(account_id), do: {:ok, Repo.get!(Account, account_id)}
 
   @doc """
   Gets a transaction by ID.
@@ -47,10 +45,33 @@ defmodule CryptoStream.Trading.Ports.TradingRepository do
   end
 
   @doc """
+  Updates an account balance.
+  """
+  @spec update_account_balance(Account.t(), Decimal.t()) :: {:ok, Account.t()} | {:error, atom()}
+  def update_account_balance(%Account{} = account, new_balance) do
+    account
+    |> Account.balance_changeset(%{balance_usd: new_balance})
+    |> Repo.update()
+  end
+
+  @doc """
+  Creates a transaction.
+  """
+  @spec create_transaction(map()) :: {:ok, Transaction.t()} | {:error, atom()}
+  def create_transaction(attrs) do
+    %Transaction{}
+    |> Transaction.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
   Lists all transactions for an account ordered by insertion date.
   """
-  @spec list_account_transactions(integer()) :: [Transaction.t()]
-  def list_account_transactions(account_id) do
+  @spec list_account_transactions(integer() | Account.t()) :: [Transaction.t()]
+  def list_account_transactions(%Account{} = account) do
+    Repo.all(from t in Transaction, where: t.account_id == ^account.id)
+  end
+  def list_account_transactions(account_id) when is_integer(account_id) do
     import Ecto.Query
 
     Transaction

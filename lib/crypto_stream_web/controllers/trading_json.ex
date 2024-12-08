@@ -1,19 +1,29 @@
 defmodule CryptoStreamWeb.TradingJSON do
-  def transaction(%{transaction: transaction, account: account}) do
+  def transaction(%{transaction: transaction}) do
     %{
-      transaction: %{
+      data: %{
         id: transaction.id,
         type: transaction.type,
         cryptocurrency: transaction.cryptocurrency,
-        amount_crypto: transaction.amount_crypto,
-        price_usd: transaction.price_usd,
-        total_usd: transaction.total_usd,
+        amount_usd: transaction.amount_usd,
+        account_id: transaction.account_id,
         inserted_at: transaction.inserted_at
-      },
-      account: %{
-        id: account.id,
-        balance_usd: account.balance_usd
       }
+    }
+  end
+
+  def transactions(%{transactions: transactions}) do
+    %{
+      data: Enum.map(transactions, fn transaction ->
+        %{
+          id: transaction.id,
+          type: transaction.type,
+          cryptocurrency: transaction.cryptocurrency,
+          amount_usd: transaction.amount_usd,
+          account_id: transaction.account_id,
+          inserted_at: transaction.inserted_at
+        }
+      end)
     }
   end
 end

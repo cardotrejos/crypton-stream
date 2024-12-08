@@ -59,4 +59,11 @@ defmodule CryptoStream.Services.CoingeckoClient do
 
   @impl true
   def supported_coin?(coin), do: coin in @supported_coins
+
+  @callback get_price(String.t(), String.t()) :: {:ok, float()} | {:error, term()}
+
+  def get_price(cryptocurrency, vs_currency) do
+    # Real implementation would make an HTTP request to Coingecko API
+    {:ok, 50_000.00}
+  end
 end
