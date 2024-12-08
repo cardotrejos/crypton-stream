@@ -35,7 +35,12 @@ defmodule CryptoStreamWeb.ApiSpec do
           bearerAuth: %OpenApiSpex.SecurityScheme{
             type: :http,
             scheme: :bearer,
-            bearerFormat: "JWT"
+            bearerFormat: "JWT",
+            description: """
+            To authorize, click the 'Authorize' button at the top of the page and enter your JWT token.
+            The token should be entered WITHOUT the 'Bearer ' prefix - just paste the raw token.
+            You can get a token by using the /api/login endpoint.
+            """
           }
         }
       }

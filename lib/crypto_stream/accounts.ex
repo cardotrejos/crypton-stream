@@ -7,6 +7,7 @@ defmodule CryptoStream.Accounts do
 
   alias CryptoStream.Repo
   alias CryptoStream.Accounts.Domain.{User, Account}
+  import Ecto.Changeset
 
   @doc """
   Gets a user by ID.
@@ -60,34 +61,49 @@ defmodule CryptoStream.Accounts do
   Registers a new user with the given attributes.
   Creates an associated trading account with initial balance.
   """
-  def register_user(attrs) do
-    Repo.transaction(fn ->
-      with {:ok, user} <- create_user(attrs),
-           {:ok, _account} <- create_account(user) do
-        user
-      else
-        {:error, changeset} -> Repo.rollback(changeset)
-      end
+  def register_user(attrs \\ %{}) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:user, User.changeset(%User{}, attrs))
+    |> Ecto.Multi.insert(:account, fn %{user: user} ->
+      %Account{}
+      |> cast(%{balance_usd: "10000.00", user_id: user.id}, [:balance_usd, :user_id])
+      |> validate_required([:balance_usd, :user_id])
     end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user, account: account}} -> 
+        user = %{user | account: account}
+        {:ok, user}
+      {:error, :user, changeset, _} -> {:error, changeset}
+      {:error, :account, changeset, _} -> {:error, changeset}
+    end
   end
 
-  defp create_user(attrs) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  defp create_account(user) do
-    %Account{
-      user_id: user.id,
-      balance_usd: Decimal.new("10000.00")
-    }
-    |> Repo.insert()
-  end
-
+  @doc """
+  Updates an account's balance.
+  """
   def update_account_balance(account, new_balance) do
     account
     |> Account.balance_changeset(%{balance_usd: new_balance})
     |> Repo.update()
+  end
+
+  @doc """
+  Authenticates a user with email and password.
+  """
+  def authenticate_user(email, password) do
+    user = get_user_by_email(email)
+    |> Repo.preload(:account)
+    
+    case user do
+      {:ok, user} -> 
+        if Bcrypt.verify_pass(password, user.password_hash) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+      {:error, :not_found} ->
+        {:error, :invalid_credentials}
+    end
   end
 end

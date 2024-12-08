@@ -7,7 +7,26 @@ defmodule CryptoStreamWeb.Router do
   end
 
   pipeline :auth do
-    plug CryptoStreamWeb.Plugs.AuthPlug
+    plug CryptoStream.Guardian.AuthPipeline
+  end
+
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  scope "/api" do
+    pipe_through :api
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+      path: "/api/openapi",
+      swagger_ui_config: %{
+        "deepLinking" => true,
+        "persistAuthorization" => true,
+        "displayOperationId" => false
+      }
   end
 
   scope "/api" do
