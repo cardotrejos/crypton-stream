@@ -5,7 +5,7 @@ defmodule CryptoStream.Accounts.Account do
   schema "accounts" do
     field :balance_usd, :decimal, default: Decimal.new("10000.00")  # Start with 10,000 USD
     belongs_to :user, CryptoStream.Accounts.User
-    has_many :transactions, CryptoStream.Trading.Transaction
+    has_many :transactions, CryptoStream.Trading.Domain.Transaction
 
     timestamps()
   end
