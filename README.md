@@ -1,18 +1,42 @@
 # CryptoStream
 
-To start your Phoenix server:
+## Project Overview
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+CryptoStream is a real-time cryptocurrency market data streaming application built using the Phoenix framework. It provides users with up-to-date market information and trading capabilities.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Installation
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+To set up the project locally, follow these steps:
 
-## Learn more
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd crypto_stream
+   ```
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+2. Install dependencies:
+   ```bash
+   mix deps.get
+   ```
+
+3. Set up the database:
+   ```bash
+   mix ecto.setup
+   ```
+
+4. Start the server:
+   ```bash
+   mix phx.server
+   ```
+
+## Usage
+
+Once the server is running, access the application at [localhost:4000](http://localhost:4000) to view real-time cryptocurrency data and perform trading actions.
+
+## Testing
+
+Run the test suite to ensure everything is working correctly:
+
+```bash
+mix test
+```
