@@ -3,10 +3,21 @@ defmodule CryptoStreamWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: CryptoStreamWeb.ApiSpec
   end
 
   pipeline :auth do
     plug CryptoStreamWeb.Plugs.AuthPlug
+  end
+
+  scope "/api" do
+    pipe_through :api
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
+
+  scope "/api/swagger" do
+    pipe_through :api
+    get "/", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
   end
 
   scope "/api", CryptoStreamWeb do
