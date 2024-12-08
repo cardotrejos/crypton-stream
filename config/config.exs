@@ -42,7 +42,7 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Configure Guardian
-config :crypto_stream, CryptoStreamWeb.Auth.Guardian,
+config :crypto_stream, CryptoStream.Guardian,
   issuer: "crypto_stream",
   secret_key: System.get_env("GUARDIAN_SECRET_KEY")
 
