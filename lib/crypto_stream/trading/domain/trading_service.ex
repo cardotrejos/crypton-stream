@@ -7,14 +7,10 @@ defmodule CryptoStream.Trading.Domain.TradingService do
   alias CryptoStream.Trading.Domain.Transaction
   alias CryptoStream.Trading.Ports.TradingRepository
   alias Decimal, as: D
-  alias CryptoStream.Accounts.Account
-
-  @type trading_result :: {:ok, Transaction.t()} | {:error, atom()}
 
   @doc """
   Executes a buy operation for cryptocurrency.
   """
-  @spec buy_cryptocurrency(Account.t(), String.t(), String.t(), String.t()) :: trading_result
   def buy_cryptocurrency(account, cryptocurrency, amount_usd, price_usd) do
     with {:ok, account} <- TradingRepository.get_account(account),
          :ok <- validate_balance(account, amount_usd),
@@ -31,7 +27,6 @@ defmodule CryptoStream.Trading.Domain.TradingService do
   @doc """
   Lists all transactions for a given account.
   """
-  @spec list_account_transactions(Account.t()) :: [Transaction.t()]
   def list_account_transactions(account) do
     TradingRepository.list_account_transactions(account)
   end

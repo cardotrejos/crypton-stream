@@ -38,7 +38,7 @@ defmodule CryptoStream.Services.CoingeckoClient do
       api_key = Application.get_env(:crypto_stream, :coingecko_api_key)
       from_unix = DateTime.to_unix(from_date)
       to_unix = DateTime.to_unix(to_date)
-      
+
       url = "#{base_url}/coins/#{coin}/market_chart/range?vs_currency=usd&from=#{from_unix}&to=#{to_unix}&x_cg_demo_api_key=#{api_key}"
 
       case HTTPoison.get(url) do
@@ -60,10 +60,4 @@ defmodule CryptoStream.Services.CoingeckoClient do
   @impl true
   def supported_coin?(coin), do: coin in @supported_coins
 
-  @callback get_price(String.t(), String.t()) :: {:ok, float()} | {:error, term()}
-
-  def get_price(cryptocurrency, vs_currency) do
-    # Real implementation would make an HTTP request to Coingecko API
-    {:ok, 50_000.00}
-  end
 end

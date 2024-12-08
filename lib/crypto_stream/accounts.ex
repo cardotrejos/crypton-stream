@@ -5,8 +5,6 @@ defmodule CryptoStream.Accounts do
   delegating to the domain layer for business logic.
   """
 
-  alias CryptoStream.Accounts.Domain.{AuthenticationService, RegistrationService}
-  alias CryptoStream.Accounts.Ports.AccountsRepository
   alias CryptoStream.Repo
   alias CryptoStream.Accounts.Domain.{User, Account}
 
@@ -65,7 +63,7 @@ defmodule CryptoStream.Accounts do
   def register_user(attrs) do
     Repo.transaction(fn ->
       with {:ok, user} <- create_user(attrs),
-           {:ok, account} <- create_account(user) do
+           {:ok, _account} <- create_account(user) do
         user
       else
         {:error, changeset} -> Repo.rollback(changeset)
@@ -85,14 +83,6 @@ defmodule CryptoStream.Accounts do
       balance_usd: Decimal.new("10000.00")
     }
     |> Repo.insert()
-  end
-
-  @doc """
-  Authenticates a user with email and password.
-  Returns {:ok, user} if successful, {:error, :invalid_credentials} otherwise.
-  """
-  def authenticate_user(email, password) do
-    AuthenticationService.authenticate_user(email, password)
   end
 
   def update_account_balance(account, new_balance) do

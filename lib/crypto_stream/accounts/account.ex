@@ -2,6 +2,15 @@ defmodule CryptoStream.Accounts.Account do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+    balance_usd: Decimal.t(),
+    user_id: integer(),
+    user: CryptoStream.Accounts.User.t() | nil,
+    transactions: [CryptoStream.Trading.Domain.Transaction.t()] | nil,
+    inserted_at: DateTime.t(),
+    updated_at: DateTime.t()
+  }
+
   schema "accounts" do
     field :balance_usd, :decimal, default: Decimal.new("10000.00")  # Start with 10,000 USD
     belongs_to :user, CryptoStream.Accounts.User
