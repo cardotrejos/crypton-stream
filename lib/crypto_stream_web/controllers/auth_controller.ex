@@ -20,7 +20,17 @@ defmodule CryptoStreamWeb.AuthController do
     end
   end
 
+  # Handle parameters nested under "user"
+  def login(conn, %{"user" => %{"email" => email, "password" => password}}) do
+    do_login(conn, email, password)
+  end
+
+  # Handle top-level parameters
   def login(conn, %{"email" => email, "password" => password}) do
+    do_login(conn, email, password)
+  end
+
+  defp do_login(conn, email, password) do
     case Accounts.authenticate_user(email, password) do
       {:ok, user} ->
         {:ok, token, _claims} = Guardian.encode_and_sign(user)

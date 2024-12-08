@@ -7,9 +7,12 @@ defmodule CryptoStream.Guardian do
   end
 
   def resource_from_claims(%{"sub" => id}) do
-    case CryptoStream.Accounts.get_user(id) do
+    user = CryptoStream.Accounts.get_user(id)
+    |> Repo.preload(:account)
+
+    case user do
       nil -> {:error, :resource_not_found}
-      user -> {:ok, Repo.preload(user, :account)}
+      user -> {:ok, user}
     end
   end
 end

@@ -16,7 +16,9 @@ defmodule CryptoStream.Accounts do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{user: user}} -> {:ok, user}
+      {:ok, %{user: user, account: account}} -> 
+        user = %{user | account: account}
+        {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
       {:error, :account, changeset, _} -> {:error, changeset}
     end
@@ -24,6 +26,8 @@ defmodule CryptoStream.Accounts do
 
   def authenticate_user(email, password) do
     user = get_user_by_email(email)
+    |> Repo.preload(:account)  
+    
     case user do
       nil -> {:error, :invalid_credentials}
       user ->

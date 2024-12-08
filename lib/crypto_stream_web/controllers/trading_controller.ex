@@ -73,11 +73,6 @@ defmodule CryptoStreamWeb.TradingController do
 
   def list_transactions(conn, _params) do
     case Guardian.Plug.current_resource(conn) do
-      {:error, reason} ->
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{error: "Unauthorized", details: inspect(reason)})
-        
       nil -> 
         conn
         |> put_status(:unauthorized)

@@ -19,8 +19,14 @@ defmodule CryptoStreamWeb.Router do
   end
 
   scope "/api" do
-    pipe_through :browser
-    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    pipe_through :api
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+      path: "/api/openapi",
+      swagger_ui_config: %{
+        "deepLinking" => true,
+        "persistAuthorization" => true,
+        "displayOperationId" => false
+      }
   end
 
   scope "/api" do
