@@ -40,6 +40,11 @@ defmodule CryptoStreamWeb.TradingController do
         |> put_status(:unprocessable_entity)
         |> json(%{error: "Account not found"})
 
+      {:error, :invalid_decimal} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "Invalid amount format"})
+
       {:error, _reason} ->
         conn
         |> put_status(:unprocessable_entity)
