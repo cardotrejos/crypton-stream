@@ -30,7 +30,7 @@ defmodule CryptoStreamWeb.ConnCase do
       import CryptoStreamWeb.ConnCase
 
       def authenticate_user(conn, user) do
-        {:ok, token, _claims} = CryptoStreamWeb.Guardian.encode_and_sign(user)
+        {:ok, token, _claims} = CryptoStream.Guardian.encode_and_sign(user)
         put_req_header(conn, "authorization", "Bearer " <> token)
       end
     end

@@ -5,7 +5,7 @@ defmodule CryptoStreamWeb.TradingJSON do
         id: transaction.id,
         type: transaction.type,
         cryptocurrency: transaction.cryptocurrency,
-        amount_crypto: transaction.amount_crypto,
+        amount_usd: transaction.amount_usd,
         price_usd: transaction.price_usd,
         total_usd: transaction.total_usd,
         account_id: transaction.account_id,
@@ -21,7 +21,7 @@ defmodule CryptoStreamWeb.TradingJSON do
           id: transaction.id,
           type: transaction.type,
           cryptocurrency: transaction.cryptocurrency,
-          amount_crypto: transaction.amount_crypto,
+          amount_usd: transaction.amount_usd,
           price_usd: transaction.price_usd,
           total_usd: transaction.total_usd,
           account_id: transaction.account_id,
@@ -29,5 +29,15 @@ defmodule CryptoStreamWeb.TradingJSON do
         }
       end)
     }
+  end
+
+  def error(template \\ %{})
+
+  def error(%{error: :insufficient_balance}) do
+    %{errors: %{detail: "Insufficient balance"}}
+  end
+
+  def error(%{error: :invalid_request}) do
+    %{errors: %{detail: "Invalid request"}}
   end
 end

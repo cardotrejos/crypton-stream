@@ -48,19 +48,19 @@ defmodule CryptoStreamWeb.TradingController do
       {:error, :unauthorized} ->
         conn
         |> put_status(:unauthorized)
-        |> render(:"401", %{})
+        |> json(%{error: "unauthorized", details: "User not authenticated"})
       {:error, :invalid_decimal} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:"422", %{errors: %{amount: ["must be a valid number"]}})
+        |> render(:error, %{error: :invalid_request})
       {:error, :insufficient_balance} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:"422", %{errors: %{balance: ["insufficient balance"]}})
+        |> render(:error, %{error: :insufficient_balance})
       _ ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:"422", %{errors: %{base: ["invalid request"]}})
+        |> render(:error, %{error: :invalid_request})
     end
   end
 
@@ -90,7 +90,7 @@ defmodule CryptoStreamWeb.TradingController do
       {:error, :unauthorized} ->
         conn
         |> put_status(:unauthorized)
-        |> render(:"401", %{})
+        |> json(%{error: "unauthorized", details: "User not authenticated"})
     end
   end
 

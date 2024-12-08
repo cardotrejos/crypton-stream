@@ -46,6 +46,10 @@ config :crypto_stream, CryptoStream.Guardian,
   issuer: "crypto_stream",
   secret_key: "jJ4GgaR7LldJV7eGborygPlJ9RvrFBFNaPndlTkg02epdpi0DhQ5kI8lOShPttCT" # Replace this with a secure secret key in production
 
+config :crypto_stream, CryptoStream.Guardian.AuthPipeline,
+  module: CryptoStream.Guardian,
+  error_handler: CryptoStream.Guardian.AuthErrorHandler
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

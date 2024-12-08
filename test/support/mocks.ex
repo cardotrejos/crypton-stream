@@ -3,9 +3,9 @@ Mox.defmock(CryptoStream.Services.MockCoingeckoClient, for: CryptoStream.Service
 defmodule CryptoStream.Services.MockCoingeckoClient do
   @behaviour CryptoStream.Services.CoingeckoBehaviour
 
-  def get_price(cryptocurrency, vs_currency) do
+  def get_price(cryptocurrency, _vs_currency) do
     case cryptocurrency do
-      "bitcoin" -> {:ok, Decimal.new("50000.00")}
+      "bitcoin" -> {:ok, "50000.00"}
       _ -> {:error, :invalid_cryptocurrency}
     end
   end
@@ -17,16 +17,16 @@ defmodule CryptoStream.Services.MockCoingeckoClient do
     }}
   end
 
-  def get_historical_prices(coin_id, from_date, to_date) do
+  def get_historical_prices(coin_id, _from_date, _to_date) do
     case coin_id do
       "bitcoin" -> {:ok, [
         %{
-          "date" => "2024-01-01",
-          "price" => 50_000.00
+          "timestamp" => "2024-01-01T00:00:00Z",
+          "price" => "50000.00"
         },
         %{
-          "date" => "2024-01-02",
-          "price" => 51_000.00
+          "timestamp" => "2024-01-02T00:00:00Z",
+          "price" => "51000.00"
         }
       ]}
       _ -> {:error, :invalid_cryptocurrency}
