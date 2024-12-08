@@ -31,11 +31,12 @@ config :crypto_stream, CryptoStream.Mailer, adapter: Swoosh.Adapters.Test
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
+# Configure test environment to use mock client
+config :crypto_stream,
+  coingecko_client: CryptoStream.Services.MockCoingeckoClient
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
-
-# Configure CoingeckoClient mock for testing
-config :crypto_stream, :coingecko_client, CryptoStream.Services.MockCoingeckoClient
