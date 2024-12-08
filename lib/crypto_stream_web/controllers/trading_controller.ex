@@ -57,4 +57,45 @@ defmodule CryptoStreamWeb.TradingController do
     |> put_status(:unprocessable_entity)
     |> json(%{error: "Invalid parameters. Required: cryptocurrency and amount"})
   end
+
+  operation :list_transactions,
+    summary: "List transactions",
+    tags: ["Trading"],
+    description: "List all transactions for the authenticated user",
+    responses: [
+      ok: {"Transaction list response", "application/json", %OpenApiSpex.Schema{
+        type: :array,
+        items: TransactionResponse
+      }},
+      unauthorized: {"Error", "application/json", ErrorResponse}
+    ],
+    security: [%{"bearer" => []}]
+
+  def list_transactions(conn, _params) do
+    case Guardian.Plug.current_resource(conn) do
+      {:error, reason} ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "Unauthorized", details: inspect(reason)})
+        
+      nil -> 
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "Unauthorized"})
+        
+      user ->
+        case user.account do
+          nil ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{error: "Account not found"})
+            
+          account ->
+            transactions = Trading.list_account_transactions(account.id)
+            conn
+            |> put_status(:ok)
+            |> render(:transactions, transactions: transactions)
+        end
+    end
+  end
 end

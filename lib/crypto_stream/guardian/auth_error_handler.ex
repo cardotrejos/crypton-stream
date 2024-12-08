@@ -4,8 +4,8 @@ defmodule CryptoStream.Guardian.AuthErrorHandler do
   @behaviour Guardian.Plug.ErrorHandler
 
   @impl Guardian.Plug.ErrorHandler
-  def auth_error(conn, {type, _reason}, _opts) do
-    body = Jason.encode!(%{error: to_string(type)})
+  def auth_error(conn, {type, reason}, _opts) do
+    body = Jason.encode!(%{error: to_string(type), details: inspect(reason)})
     
     conn
     |> put_resp_content_type("application/json")

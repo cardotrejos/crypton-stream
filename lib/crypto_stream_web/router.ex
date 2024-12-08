@@ -39,6 +39,7 @@ defmodule CryptoStreamWeb.Router do
   scope "/api", CryptoStreamWeb do
     pipe_through [:api, :auth]
     post "/trading/buy", TradingController, :buy
+    get "/trading/transactions", TradingController, :list_transactions
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
