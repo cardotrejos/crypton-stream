@@ -30,13 +30,13 @@ defmodule CryptoStreamWeb.AuthController do
   defp do_login(conn, email, password) do
     case AuthenticationService.authenticate_user(email, password) do
       {:ok, user} ->
-        user = Repo.preload(user, :account)
-        {:ok, token, _claims} = CryptoStreamWeb.Guardian.encode_and_sign(user)
-        render(conn, :user, %{user: user, token: token})
+        {:ok, token, _claims} = CryptoStreamWeb.Auth.Guardian.encode_and_sign(user)
+        json(conn, %{token: token})
+
       {:error, :invalid_credentials} ->
         conn
         |> put_status(:unauthorized)
-        |> render(:error, %{message: "Invalid email or password"})
+        |> json(%{error: "Invalid credentials"})
     end
   end
 end

@@ -64,3 +64,6 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+config :crypto_stream, CryptoStreamWeb.Auth.Guardian,
+  secret_key: "some_dev_secret_key_min_32_chars_long"

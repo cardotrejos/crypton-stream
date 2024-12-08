@@ -42,9 +42,9 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Configure Guardian
-config :crypto_stream, CryptoStream.Guardian,
+config :crypto_stream, CryptoStreamWeb.Auth.Guardian,
   issuer: "crypto_stream",
-  secret_key: "jJ4GgaR7LldJV7eGborygPlJ9RvrFBFNaPndlTkg02epdpi0DhQ5kI8lOShPttCT" # Replace this with a secure secret key in production
+  secret_key: System.get_env("GUARDIAN_SECRET_KEY")
 
 config :crypto_stream, CryptoStream.Guardian.AuthPipeline,
   module: CryptoStream.Guardian,
