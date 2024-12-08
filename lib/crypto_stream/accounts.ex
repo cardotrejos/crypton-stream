@@ -6,8 +6,8 @@ defmodule CryptoStream.Accounts do
   """
 
   alias CryptoStream.Repo
-  alias CryptoStream.Accounts.Domain.{User, Account}
-  import Ecto.Changeset
+  alias CryptoStream.Accounts.Domain.{User, Authentication, AccountManager}
+  alias Ecto.Multi
 
   @doc """
   Gets a user by ID.
@@ -28,32 +28,21 @@ defmodule CryptoStream.Accounts do
   @doc """
   Gets a user by email.
   """
-  def get_user_by_email(email) do
-    case Repo.get_by(User, email: email) do
-      nil -> {:error, :not_found}
-      user -> {:ok, user}
-    end
-  end
+  def get_user_by_email(email), do: Authentication.get_user_by_email(email)
 
   @doc """
   Gets an account by ID.
   """
-  def get_account(id) do
-    case Repo.get(Account, id) do
-      nil -> {:error, :not_found}
-      account -> {:ok, account}
-    end
-  end
+  def get_account(id), do: AccountManager.get_account(id)
 
   @doc """
   Gets an account by user ID.
   """
   def get_account_by_user_id(user_id) do
-    case get_user(user_id) do
+    with user when not is_nil(user) <- get_user(user_id) do
+      AccountManager.get_account_by_user(user)
+    else
       nil -> {:error, :not_found}
-      user ->
-        account = Repo.preload(user, :account).account
-        if account, do: {:ok, account}, else: {:error, :not_found}
     end
   end
 
@@ -62,20 +51,17 @@ defmodule CryptoStream.Accounts do
   Creates an associated trading account with initial balance.
   """
   def register_user(attrs \\ %{}) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:user, User.changeset(%User{}, attrs))
-    |> Ecto.Multi.insert(:account, fn %{user: user} ->
-      %Account{}
-      |> cast(%{balance_usd: "10000.00", user_id: user.id}, [:balance_usd, :user_id])
-      |> validate_required([:balance_usd, :user_id])
+    Multi.new()
+    |> Multi.insert(:user, User.changeset(%User{}, attrs))
+    |> Multi.run(:account, fn _repo, %{user: user} ->
+      AccountManager.create_account(user)
     end)
     |> Repo.transaction()
     |> case do
       {:ok, %{user: user, account: account}} -> 
-        user = %{user | account: account}
-        {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
-      {:error, :account, changeset, _} -> {:error, changeset}
+        {:ok, %{user | account: account}}
+      {:error, operation, changeset, _changes} -> 
+        {:error, {operation, changeset}}
     end
   end
 
@@ -83,27 +69,13 @@ defmodule CryptoStream.Accounts do
   Updates an account's balance.
   """
   def update_account_balance(account, new_balance) do
-    account
-    |> Account.balance_changeset(%{balance_usd: new_balance})
-    |> Repo.update()
+    AccountManager.update_balance(account, new_balance)
   end
 
   @doc """
   Authenticates a user with email and password.
   """
   def authenticate_user(email, password) do
-    user = get_user_by_email(email)
-    |> Repo.preload(:account)
-    
-    case user do
-      {:ok, user} -> 
-        if Bcrypt.verify_pass(password, user.password_hash) do
-          {:ok, user}
-        else
-          {:error, :invalid_credentials}
-        end
-      {:error, :not_found} ->
-        {:error, :invalid_credentials}
-    end
+    Authentication.authenticate(email, password)
   end
 end

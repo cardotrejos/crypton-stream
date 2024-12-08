@@ -11,7 +11,11 @@ defmodule CryptoStreamWeb.AuthController do
         user = Repo.preload(user, :account)
         {:ok, token, _claims} = CryptoStream.Guardian.encode_and_sign(user)
         render(conn, :user, %{user: user, token: token})
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, {:user, changeset}} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:error, %{changeset: changeset})
+      {:error, {_operation, changeset}} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(:error, %{changeset: changeset})
