@@ -10,8 +10,9 @@ defmodule CryptoStream.Services.CoingeckoClient do
   @impl true
   def get_prices do
     base_url = Application.get_env(:crypto_stream, :coingecko_base_url, "https://api.coingecko.com/api/v3")
+    api_key = Application.get_env(:crypto_stream, :coingecko_api_key)
     ids = Enum.join(@supported_coins, ",")
-    url = "#{base_url}/simple/price?ids=#{ids}&vs_currencies=usd"
+    url = "#{base_url}/simple/price?ids=#{ids}&vs_currencies=usd&x_cg_demo_api_key=#{api_key}"
 
     case HTTPoison.get(url) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -34,10 +35,11 @@ defmodule CryptoStream.Services.CoingeckoClient do
       {:error, "Unsupported cryptocurrency: #{coin}"}
     else
       base_url = Application.get_env(:crypto_stream, :coingecko_base_url, "https://api.coingecko.com/api/v3")
+      api_key = Application.get_env(:crypto_stream, :coingecko_api_key)
       from_unix = DateTime.to_unix(from_date)
       to_unix = DateTime.to_unix(to_date)
       
-      url = "#{base_url}/coins/#{coin}/market_chart/range?vs_currency=usd&from=#{from_unix}&to=#{to_unix}"
+      url = "#{base_url}/coins/#{coin}/market_chart/range?vs_currency=usd&from=#{from_unix}&to=#{to_unix}&x_cg_demo_api_key=#{api_key}"
 
       case HTTPoison.get(url) do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -56,7 +58,5 @@ defmodule CryptoStream.Services.CoingeckoClient do
   end
 
   @impl true
-  def supported_coin?(coin) do
-    coin in @supported_coins
-  end
+  def supported_coin?(coin), do: coin in @supported_coins
 end

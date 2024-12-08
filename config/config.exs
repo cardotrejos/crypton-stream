@@ -10,7 +10,8 @@ import Config
 config :crypto_stream,
   ecto_repos: [CryptoStream.Repo],
   generators: [timestamp_type: :utc_datetime],
-  coingecko_client: CryptoStream.Services.CoingeckoClient
+  coingecko_client: CryptoStream.Services.CoingeckoClient,
+  coingecko_api_key: System.get_env("COINGECKO_API_KEY")
 
 # Configures the endpoint
 config :crypto_stream, CryptoStreamWeb.Endpoint,
