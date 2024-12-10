@@ -101,7 +101,7 @@ Swagger UI can be accessed at [localhost:4000/api/swaggerui](http://localhost:40
 
 4. For authentication, click on the "Authorize" button to log in with the credentials provided in the Login Request section of the "Try it out" modal. Here is an example of a successful login:
 
-![Screenshot 1](instructions/Screenshot%202024-12-10%20at%206.03.49%20PM.png)
-![Screenshot 2](instructions/Screenshot%202024-12-10%20at%206.03.54%20PM.png)
-![Screenshot 3](instructions/Screenshot%202024-12-10%20at%206.04.03%20PM.png)
-![Screenshot 4](instructions/Screenshot%202024-12-10%20at%206.04.12%20PM.png)
+![Screenshot 2024-12-10 at 6 03 49 PM](https://github.com/user-attachments/assets/23607d38-0c67-4afb-9356-6dda703078a1)
+![Screenshot 2024-12-10 at 6 03 54 PM](https://github.com/user-attachments/assets/e1bcdb2f-b31d-49db-83d8-20a065bac16a)
+![Screenshot 2024-12-10 at 6 04 03 PM](https://github.com/user-attachments/assets/e0c395b7-f895-413b-8823-4ca096271f10)
+![Screenshot 2024-12-10 at 6 04 12 PM](https://github.com/user-attachments/assets/e6f70273-2a6f-4cf5-b738-bb69d9218c6a)
