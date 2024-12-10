@@ -11,6 +11,7 @@ defmodule CryptoStreamWeb.TradingJSONTest do
         type: "buy",
         cryptocurrency: "BTC",
         amount_usd: D.new("1000.00"),
+        amount_crypto: D.new("0.02"),
         price_usd: D.new("50000.00"),
         total_usd: D.new("1000.00"),
         account_id: 1,
@@ -22,7 +23,8 @@ defmodule CryptoStreamWeb.TradingJSONTest do
           id: 1,
           type: "buy",
           cryptocurrency: "BTC",
-          amount_usd: amount,
+          amount_usd: amount_usd,
+          amount_crypto: amount_crypto,
           price_usd: price,
           total_usd: total,
           account_id: 1,
@@ -30,7 +32,8 @@ defmodule CryptoStreamWeb.TradingJSONTest do
         }
       } = TradingJSON.transaction(%{transaction: transaction})
 
-      assert Decimal.equal?(amount, transaction.amount_usd)
+      assert Decimal.equal?(amount_usd, transaction.amount_usd)
+      assert Decimal.equal?(amount_crypto, transaction.amount_crypto)
       assert Decimal.equal?(price, transaction.price_usd)
       assert Decimal.equal?(total, transaction.total_usd)
     end
@@ -44,6 +47,7 @@ defmodule CryptoStreamWeb.TradingJSONTest do
           type: "buy",
           cryptocurrency: "BTC",
           amount_usd: D.new("1000.00"),
+          amount_crypto: D.new("0.02"),
           price_usd: D.new("50000.00"),
           total_usd: D.new("1000.00"),
           account_id: 1,
@@ -51,19 +55,32 @@ defmodule CryptoStreamWeb.TradingJSONTest do
         },
         %{
           id: 2,
-          type: "sell",
-          cryptocurrency: "ETH",
-          amount_usd: D.new("500.00"),
-          price_usd: D.new("3000.00"),
-          total_usd: D.new("500.00"),
+          type: "buy",
+          cryptocurrency: "BTC",
+          amount_usd: D.new("2000.00"),
+          amount_crypto: D.new("0.04"),
+          price_usd: D.new("50000.00"),
+          total_usd: D.new("2000.00"),
           account_id: 1,
           inserted_at: ~N[2024-01-01 00:00:00]
         }
       ]
 
       assert %{data: rendered_transactions} = TradingJSON.transactions(%{transactions: transactions})
-      assert length(rendered_transactions) == 2
-      assert Enum.all?(rendered_transactions, &(&1.id in [1, 2]))
+      assert length(rendered_transactions) == length(transactions)
+
+      Enum.zip(rendered_transactions, transactions)
+      |> Enum.each(fn {rendered, original} ->
+        assert rendered.id == original.id
+        assert rendered.type == original.type
+        assert rendered.cryptocurrency == original.cryptocurrency
+        assert Decimal.equal?(D.new(rendered.amount_usd), original.amount_usd)
+        assert Decimal.equal?(D.new(rendered.amount_crypto), original.amount_crypto)
+        assert Decimal.equal?(D.new(rendered.price_usd), original.price_usd)
+        assert Decimal.equal?(D.new(rendered.total_usd), original.total_usd)
+        assert rendered.account_id == original.account_id
+        assert rendered.inserted_at == original.inserted_at
+      end)
     end
 
     test "renders empty list for no transactions" do

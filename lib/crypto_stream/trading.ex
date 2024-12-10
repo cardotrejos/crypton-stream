@@ -8,11 +8,17 @@ defmodule CryptoStream.Trading do
   alias CryptoStream.Trading.Domain.TradingService
 
   @doc """
-  Simulates buying cryptocurrency with the user's virtual USD balance.
-  Returns {:ok, %{transaction: transaction, account: updated_account}} on success,
-  or {:error, reason} on failure.
+  Buy cryptocurrency with USD amount.
+  Returns {:ok, transaction} on success, or {:error, reason} on failure.
   """
-  defdelegate buy_cryptocurrency(account_id, cryptocurrency, amount_crypto, price_usd), 
+  defdelegate buy_cryptocurrency_with_usd(account_id, cryptocurrency, amount_usd, price_usd),
+    to: TradingService
+
+  @doc """
+  Buy cryptocurrency with crypto amount.
+  Returns {:ok, transaction} on success, or {:error, reason} on failure.
+  """
+  defdelegate buy_cryptocurrency_with_crypto(account_id, cryptocurrency, amount_crypto, price_usd),
     to: TradingService
 
   @doc """

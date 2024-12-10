@@ -9,12 +9,13 @@ defmodule CryptoStream.Trading.Domain.TradingService do
   alias Decimal, as: D
 
   @doc """
-  Executes a buy operation for cryptocurrency.
+  Executes a buy operation for cryptocurrency using USD amount.
   """
-  def buy_cryptocurrency(account, cryptocurrency, amount_usd, price_usd) do
+  def buy_cryptocurrency_with_usd(account, cryptocurrency, amount_usd, price_usd) do
     with {:ok, account} <- TradingRepository.get_account(account),
          :ok <- validate_balance(account, amount_usd),
-         attrs <- Transaction.new_buy(cryptocurrency, amount_usd, price_usd, account),
+         crypto_amount = D.div(amount_usd, price_usd),
+         attrs <- Transaction.new_buy(cryptocurrency, amount_usd, price_usd, account, crypto_amount),
          {:ok, transaction} <- TradingRepository.create_transaction(attrs),
          new_balance = D.sub(account.balance_usd, amount_usd),
          {:ok, _updated_account} <- TradingRepository.update_account_balance(account, new_balance) do
@@ -23,6 +24,14 @@ defmodule CryptoStream.Trading.Domain.TradingService do
       {:error, :insufficient_balance} = error -> error
       {:error, _reason} -> {:error, :transaction_failed}
     end
+  end
+
+  @doc """
+  Executes a buy operation for cryptocurrency using crypto amount.
+  """
+  def buy_cryptocurrency_with_crypto(account, cryptocurrency, crypto_amount, price_usd) do
+    amount_usd = D.mult(crypto_amount, price_usd)
+    buy_cryptocurrency_with_usd(account, cryptocurrency, amount_usd, price_usd)
   end
 
   @doc """

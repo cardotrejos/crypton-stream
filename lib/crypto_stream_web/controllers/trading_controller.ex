@@ -10,14 +10,27 @@ defmodule CryptoStreamWeb.TradingController do
   operation :buy,
     summary: "Buy cryptocurrency",
     tags: ["Trading"],
-    description: "Buy cryptocurrency with USD from the user's account",
+    description: "Buy cryptocurrency with USD or crypto amount from the user's account",
     request_body: {"Buy request", "application/json", %OpenApiSpex.Schema{
       type: :object,
-      required: [:cryptocurrency, :amount_usd],
-      properties: %{
-        cryptocurrency: %OpenApiSpex.Schema{type: :string, description: "Cryptocurrency symbol"},
-        amount_usd: %OpenApiSpex.Schema{type: :string, description: "Amount in USD to spend"}
-      }
+      oneOf: [
+        %OpenApiSpex.Schema{
+          type: :object,
+          required: [:cryptocurrency, :amount_usd],
+          properties: %{
+            cryptocurrency: %OpenApiSpex.Schema{type: :string, description: "Cryptocurrency symbol"},
+            amount_usd: %OpenApiSpex.Schema{type: :string, description: "Amount in USD to spend"}
+          }
+        },
+        %OpenApiSpex.Schema{
+          type: :object,
+          required: [:cryptocurrency, :amount_crypto],
+          properties: %{
+            cryptocurrency: %OpenApiSpex.Schema{type: :string, description: "Cryptocurrency symbol"},
+            amount_crypto: %OpenApiSpex.Schema{type: :string, description: "Amount of cryptocurrency to buy"}
+          }
+        }
+      ]
     }},
     responses: [
       created: {"Transaction response", "application/json", TransactionResponse},
@@ -36,12 +49,38 @@ defmodule CryptoStreamWeb.TradingController do
     ],
     security: [%{"bearer" => []}]
 
-  def buy(conn, %{"cryptocurrency" => cryptocurrency, "amount_usd" => amount_usd}) do
+  def buy(conn, %{"cryptocurrency" => cryptocurrency} = params) do
+    cond do
+      Map.has_key?(params, "amount_usd") and Map.has_key?(params, "amount_crypto") ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "invalid_request", details: "Cannot specify both USD and crypto amounts"})
+
+      Map.has_key?(params, "amount_usd") ->
+        buy_with_usd(conn, cryptocurrency, params["amount_usd"])
+
+      Map.has_key?(params, "amount_crypto") ->
+        buy_with_crypto(conn, cryptocurrency, params["amount_crypto"])
+
+      true ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "invalid_request", details: "Invalid request"})
+    end
+  end
+
+  def buy(conn, _) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{error: "invalid_request", details: "Invalid request"})
+  end
+
+  defp buy_with_usd(conn, cryptocurrency, amount_usd) do
     with {:ok, account} <- get_current_account(conn),
          {:ok, decimal_amount} <- parse_decimal(amount_usd),
          {:ok, prices} <- @price_client.get_prices(),
          {:ok, price} <- extract_price(cryptocurrency, prices),
-         {:ok, transaction} <- Trading.buy_cryptocurrency(account, cryptocurrency, decimal_amount, price) do
+         {:ok, transaction} <- Trading.buy_cryptocurrency_with_usd(account, cryptocurrency, decimal_amount, price) do
       conn
       |> put_status(:created)
       |> render(:transaction, %{transaction: transaction})
@@ -68,8 +107,36 @@ defmodule CryptoStreamWeb.TradingController do
     end
   end
 
-  def buy(conn, %{"cryptocurrency" => cryptocurrency, "amount" => amount}) do
-    buy(conn, %{"cryptocurrency" => cryptocurrency, "amount_usd" => amount})
+  defp buy_with_crypto(conn, cryptocurrency, amount_crypto) do
+    with {:ok, account} <- get_current_account(conn),
+         {:ok, decimal_amount} <- parse_decimal(amount_crypto),
+         {:ok, prices} <- @price_client.get_prices(),
+         {:ok, price} <- extract_price(cryptocurrency, prices),
+         {:ok, transaction} <- Trading.buy_cryptocurrency_with_crypto(account, cryptocurrency, decimal_amount, price) do
+      conn
+      |> put_status(:created)
+      |> render(:transaction, %{transaction: transaction})
+    else
+      {:error, :unauthorized} ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "unauthorized", details: "User not authenticated"})
+
+      {:error, :insufficient_balance} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{"errors" => %{"detail" => "Insufficient balance"}})
+
+      {:error, message} when is_binary(message) ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "invalid_request", details: message})
+
+      _ ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "invalid_request", details: "Invalid request"})
+    end
   end
 
   operation :list_transactions,

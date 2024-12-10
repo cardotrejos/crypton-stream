@@ -1,5 +1,13 @@
 import Config
 
+# Load environment variables from .env file in development
+if config_env() == :dev do
+  {:ok, _} = Application.ensure_all_started(:dotenv_parser)
+  if File.exists?(".env") do
+    DotenvParser.load_file(".env")
+  end
+end
+
 # Configure Guardian for all environments
 guardian_secret_key =
   System.get_env("GUARDIAN_SECRET_KEY") ||
