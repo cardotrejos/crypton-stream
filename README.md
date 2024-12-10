@@ -40,3 +40,20 @@ Run the test suite to ensure everything is working correctly:
 ```bash
 mix test
 ```
+
+## Swagger Testing
+
+Swagger UI can be accessed at [localhost:4000/api/swaggerui](http://localhost:4000/api/swaggerui)
+
+1. Open the Swagger UI at [localhost:4000/api/swaggerui](http://localhost:4000/api/swaggerui)
+
+2. Market Data endpoints can be tested by clicking on the "Try it out" button for each endpoint. (This does not require authentication)
+
+3. Trading endpoints can be tested by clicking on the "Try it out" button for each endpoint. (This requires authentication)
+
+4. For authentication, click on the "Authorize" button to log in with the credentials provided in the Login Request section of the "Try it out" modal. Here is an example of a successful login:
+
+![Screenshot 1](instructions/Screenshot%202024-12-10%20at%206.03.49%20PM.png)
+![Screenshot 2](instructions/Screenshot%202024-12-10%20at%206.03.54%20PM.png)
+![Screenshot 3](instructions/Screenshot%202024-12-10%20at%206.04.03%20PM.png)
+![Screenshot 4](instructions/Screenshot%202024-12-10%20at%206.04.12%20PM.png)
