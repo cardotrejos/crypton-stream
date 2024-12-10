@@ -25,28 +25,24 @@ defmodule CryptoStreamWeb.TradingControllerTest do
 
   describe "buy cryptocurrency" do
     test "successfully buys cryptocurrency with sufficient balance", %{conn: conn} do
-      expect(CryptoStream.Services.MockCoingeckoClient, :get_price, fn "bitcoin", "usd" ->
-        {:ok, "50000.00"}
-      end)
+      CryptoStream.Services.MockCoingeckoClient
+      |> expect(:get_prices, fn -> {:ok, %{"bitcoin" => %{"usd" => 50000.00}}} end)
 
       conn = post(conn, ~p"/api/trading/buy", %{
-        "cryptocurrency" => "bitcoin",
-        "amount_usd" => "1000.00",
-        "price_usd" => "50000.00"
+        "cryptocurrency" => "BTC",
+        "amount_usd" => "1000.00"
       })
 
       assert %{"data" => %{"id" => _id}} = json_response(conn, 201)
     end
 
     test "fails to buy cryptocurrency with insufficient balance", %{conn: conn} do
-      expect(CryptoStream.Services.MockCoingeckoClient, :get_price, fn "bitcoin", "usd" ->
-        {:ok, "50000.00"}
-      end)
+      CryptoStream.Services.MockCoingeckoClient
+      |> expect(:get_prices, fn -> {:ok, %{"bitcoin" => %{"usd" => 50000.00}}} end)
 
       conn = post(conn, ~p"/api/trading/buy", %{
-        "cryptocurrency" => "bitcoin",
-        "amount_usd" => "20000.00",
-        "price_usd" => "50000.00"
+        "cryptocurrency" => "BTC",
+        "amount_usd" => "200000.00"
       })
 
       assert json_response(conn, 422) == %{
@@ -58,35 +54,31 @@ defmodule CryptoStreamWeb.TradingControllerTest do
 
     test "fails with invalid parameters", %{conn: conn} do
       conn = post(conn, ~p"/api/trading/buy", %{
-        "cryptocurrency" => "bitcoin",
-        "amount_usd" => "invalid",
-        "price_usd" => "50000.00"
+        "cryptocurrency" => "BTC",
+        "amount_usd" => "invalid"
       })
 
       assert json_response(conn, 422) == %{
-        "errors" => %{
-          "detail" => "Invalid request"
-        }
+        "error" => "invalid_request",
+        "details" => "Invalid request"
       }
     end
   end
 
   describe "list transactions" do
     test "lists all transactions for the authenticated user", %{conn: conn} do
-      expect(CryptoStream.Services.MockCoingeckoClient, :get_price, fn "bitcoin", "usd" ->
-        {:ok, "50000.00"}
-      end)
+      CryptoStream.Services.MockCoingeckoClient
+      |> expect(:get_prices, fn -> {:ok, %{"bitcoin" => %{"usd" => 50000.00}}} end)
 
       conn = post(conn, ~p"/api/trading/buy", %{
-        "cryptocurrency" => "bitcoin",
-        "amount_usd" => "1000.00",
-        "price_usd" => "50000.00"
+        "cryptocurrency" => "BTC",
+        "amount_usd" => "1000.00"
       })
 
       conn = get(conn, ~p"/api/trading/transactions")
 
       assert %{"data" => [transaction | _]} = json_response(conn, 200)
-      assert transaction["cryptocurrency"] == "bitcoin"
+      assert transaction["cryptocurrency"] == "BTC"
       assert transaction["amount_usd"] == "1000.00000000"
     end
   end

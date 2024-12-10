@@ -37,7 +37,11 @@ config :crypto_stream,
 
 config :crypto_stream, CryptoStream.Guardian,
   issuer: "crypto_stream",
-  secret_key: "test_secret_key_for_testing_only"
+  secret_key: "test_secret_key_for_testing_only",
+  ttl: {1, :day}
+
+# Set Guardian secret key for testing
+System.put_env("GUARDIAN_SECRET_KEY", "test_secret_key_for_testing_only")
 
 # Print only warnings and errors during test
 config :logger, level: :warning

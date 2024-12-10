@@ -3,8 +3,9 @@ defmodule CryptoStreamWeb.TradingController do
   use OpenApiSpex.ControllerSpecs
 
   alias CryptoStream.Trading
-  alias CryptoStream.Services.CoingeckoClient
   alias CryptoStreamWeb.Schemas.Trading.TransactionResponse
+
+  @price_client Application.compile_env(:crypto_stream, :coingecko_client, CryptoStream.Services.CoingeckoClient)
 
   operation :buy,
     summary: "Buy cryptocurrency",
@@ -38,7 +39,7 @@ defmodule CryptoStreamWeb.TradingController do
   def buy(conn, %{"cryptocurrency" => cryptocurrency, "amount_usd" => amount_usd}) do
     with {:ok, account} <- get_current_account(conn),
          {:ok, decimal_amount} <- parse_decimal(amount_usd),
-         {:ok, prices} <- CoingeckoClient.get_prices(),
+         {:ok, prices} <- @price_client.get_prices(),
          {:ok, price} <- extract_price(cryptocurrency, prices),
          {:ok, transaction} <- Trading.buy_cryptocurrency(account, cryptocurrency, decimal_amount, price) do
       conn
@@ -53,7 +54,7 @@ defmodule CryptoStreamWeb.TradingController do
       {:error, :insufficient_balance} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, %{error: :insufficient_balance})
+        |> json(%{"errors" => %{"detail" => "Insufficient balance"}})
 
       {:error, message} when is_binary(message) ->
         conn
@@ -63,7 +64,7 @@ defmodule CryptoStreamWeb.TradingController do
       _ ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(:error, %{error: :invalid_request})
+        |> json(%{error: "invalid_request", details: "Invalid request"})
     end
   end
 

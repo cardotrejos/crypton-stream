@@ -20,7 +20,8 @@ defmodule CryptoStream.Trading.Domain.TradingService do
          {:ok, _updated_account} <- TradingRepository.update_account_balance(account, new_balance) do
       {:ok, transaction}
     else
-      {:error, _reason} -> {:error, :insufficient_balance}
+      {:error, :insufficient_balance} = error -> error
+      {:error, _reason} -> {:error, :transaction_failed}
     end
   end
 
@@ -34,7 +35,7 @@ defmodule CryptoStream.Trading.Domain.TradingService do
   # Private functions
 
   defp validate_balance(account, amount_usd) do
-    if D.compare(account.balance_usd, amount_usd) == :gt do
+    if D.compare(account.balance_usd, amount_usd) in [:gt, :eq] do
       :ok
     else
       {:error, :insufficient_balance}

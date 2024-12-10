@@ -10,7 +10,7 @@ defmodule CryptoStream.Accounts.Domain.AccountManager do
   @type account_result :: {:ok, Account.t()} | {:error, Ecto.Changeset.t() | :not_found}
   @type balance_update_result :: {:ok, Account.t()} | {:error, :insufficient_funds | Ecto.Changeset.t()}
 
-  @initial_balance D.new("100000.00")
+  @initial_balance D.new("10000.00")
 
   @spec create_account(User.t()) :: account_result
   def create_account(%User{} = user) do
