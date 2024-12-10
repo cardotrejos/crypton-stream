@@ -41,11 +41,7 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Configure Guardian
-config :crypto_stream, CryptoStream.Guardian,
-  issuer: "crypto_stream",
-  secret_key: System.get_env("GUARDIAN_SECRET_KEY")
-
+# Configure Guardian auth pipeline
 config :crypto_stream, CryptoStream.Guardian.AuthPipeline,
   module: CryptoStream.Guardian,
   error_handler: CryptoStream.Guardian.AuthErrorHandler

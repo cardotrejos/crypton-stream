@@ -3,8 +3,8 @@ defmodule CryptoStreamWeb.TradingController do
   use OpenApiSpex.ControllerSpecs
 
   alias CryptoStream.Trading
-  alias CryptoStream.Services.MockCoingeckoClient
-  alias CryptoStreamWeb.{ErrorJSON, Schemas.Trading.TransactionResponse}
+  alias CryptoStream.Services.CoingeckoClient
+  alias CryptoStreamWeb.Schemas.Trading.TransactionResponse
 
   operation :buy,
     summary: "Buy cryptocurrency",
@@ -38,9 +38,9 @@ defmodule CryptoStreamWeb.TradingController do
   def buy(conn, %{"cryptocurrency" => cryptocurrency, "amount_usd" => amount_usd}) do
     with {:ok, account} <- get_current_account(conn),
          {:ok, decimal_amount} <- parse_decimal(amount_usd),
-         {:ok, price} <- MockCoingeckoClient.get_price(cryptocurrency, "usd"),
-         {:ok, decimal_price} <- parse_decimal(price),
-         {:ok, transaction} <- Trading.buy_cryptocurrency(account, cryptocurrency, decimal_amount, decimal_price) do
+         {:ok, prices} <- CoingeckoClient.get_prices(),
+         {:ok, price} <- extract_price(cryptocurrency, prices),
+         {:ok, transaction} <- Trading.buy_cryptocurrency(account, cryptocurrency, decimal_amount, price) do
       conn
       |> put_status(:created)
       |> render(:transaction, %{transaction: transaction})
@@ -49,19 +49,26 @@ defmodule CryptoStreamWeb.TradingController do
         conn
         |> put_status(:unauthorized)
         |> json(%{error: "unauthorized", details: "User not authenticated"})
-      {:error, :invalid_decimal} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(:error, %{error: :invalid_request})
+
       {:error, :insufficient_balance} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(:error, %{error: :insufficient_balance})
+
+      {:error, message} when is_binary(message) ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "invalid_request", details: message})
+
       _ ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(:error, %{error: :invalid_request})
     end
+  end
+
+  def buy(conn, %{"cryptocurrency" => cryptocurrency, "amount" => amount}) do
+    buy(conn, %{"cryptocurrency" => cryptocurrency, "amount_usd" => amount})
   end
 
   operation :list_transactions,
@@ -113,5 +120,23 @@ defmodule CryptoStreamWeb.TradingController do
     rescue
       Decimal.Error -> {:error, :invalid_decimal}
     end
+  end
+
+  defp extract_price("BTC", prices) do
+    case get_in(prices, ["bitcoin", "usd"]) do
+      nil -> {:error, "Price not found for BTC"}
+      price -> {:ok, Decimal.new("#{price}")}
+    end
+  end
+
+  defp extract_price("SOL", prices) do
+    case get_in(prices, ["solana", "usd"]) do
+      nil -> {:error, "Price not found for SOL"}
+      price -> {:ok, Decimal.new("#{price}")}
+    end
+  end
+
+  defp extract_price(crypto, _prices) do
+    {:error, "Unsupported cryptocurrency: #{crypto}"}
   end
 end

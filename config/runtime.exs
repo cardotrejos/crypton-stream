@@ -1,5 +1,17 @@
 import Config
 
+# Configure Guardian for all environments
+guardian_secret_key =
+  System.get_env("GUARDIAN_SECRET_KEY") ||
+    raise """
+    environment variable GUARDIAN_SECRET_KEY is missing.
+    You can generate one by calling: mix guardian.gen.secret
+    """
+
+config :crypto_stream, CryptoStream.Guardian,
+  issuer: "crypto_stream",
+  secret_key: guardian_secret_key
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration
