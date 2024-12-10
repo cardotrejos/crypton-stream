@@ -10,8 +10,18 @@ defmodule CryptoStreamWeb.Schemas.Trading do
       description: "Request body for buying cryptocurrency",
       type: :object,
       properties: %{
-        cryptocurrency: %Schema{type: :string, description: "Cryptocurrency symbol", example: "BTC"},
-        amount: %Schema{type: :string, description: "Amount of cryptocurrency to buy", example: "0.5"}
+        cryptocurrency: %Schema{type: :string, description: "Cryptocurrency symbol (BTC or SOL)", example: "BTC"},
+        amount: %Schema{
+          type: :string,
+          description: """
+          Amount to buy. Can be specified in two formats:
+          1. Cryptocurrency amount (e.g. "0.5" for 0.5 BTC) - internally converts to USD using current price
+          2. USD amount by adding 'usd' suffix (e.g. "100usd" to buy $100 worth of crypto)
+
+          Note: The transaction will store both amount_crypto and amount_usd fields, but the request only needs one format.
+          """,
+          example: "0.5"
+        }
       },
       required: [:cryptocurrency, :amount]
     })
