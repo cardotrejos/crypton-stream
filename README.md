@@ -56,11 +56,6 @@ CryptoStream is a real-time cryptocurrency market data streaming application bui
 - Test support files in `test/support`
 - Controller tests for API endpoints
 
-### Monitoring and Performance
-- Phoenix LiveDashboard for monitoring
-- Telemetry for metrics collection
-- Logging configured for different environments
-
 ## Installation
 
 To set up the project locally, follow these steps:
@@ -85,10 +80,6 @@ To set up the project locally, follow these steps:
    ```bash
    mix phx.server
    ```
-
-## Usage
-
-Once the server is running, access the application at [localhost:4000](http://localhost:4000) to view real-time cryptocurrency data and perform trading actions.
 
 ## Testing
 
