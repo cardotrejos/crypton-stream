@@ -19,7 +19,7 @@ defmodule CryptoStream.Accounts.Domain.Account do
     updated_at: DateTime.t() | nil
   }
 
-  @initial_balance D.new("10000.00")
+  @initial_balance D.new("100000.00")
 
   schema "accounts" do
     field :balance_usd, :decimal, default: @initial_balance
@@ -66,7 +66,7 @@ defmodule CryptoStream.Accounts.Domain.Account do
   """
   def update_balance(%__MODULE__{} = account, %Decimal{} = amount) do
     new_balance = D.sub(account.balance_usd, amount)
-    
+
     if D.compare(new_balance, 0) == :lt do
       {:error, :insufficient_balance}
     else
