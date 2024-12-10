@@ -37,7 +37,6 @@ defmodule CryptoStreamWeb.TradingJSON do
       amount_usd: transaction.amount_usd,
       amount_crypto: transaction.amount_crypto,
       price_usd: transaction.price_usd,
-      total_usd: transaction.total_usd,
       account_id: transaction.account_id,
       inserted_at: transaction.inserted_at
     }

@@ -14,7 +14,6 @@ defmodule CryptoStream.Trading.Domain.Transaction do
     amount_crypto: Decimal.t(),
     amount_usd: Decimal.t(),
     price_usd: Decimal.t(),
-    total_usd: Decimal.t(),
     account_id: integer(),
     inserted_at: DateTime.t() | nil,
     updated_at: DateTime.t() | nil
@@ -26,13 +25,12 @@ defmodule CryptoStream.Trading.Domain.Transaction do
     field :amount_crypto, :decimal
     field :amount_usd, :decimal
     field :price_usd, :decimal
-    field :total_usd, :decimal
     belongs_to :account, CryptoStream.Accounts.Domain.Account
 
     timestamps()
   end
 
-  @required_fields [:type, :cryptocurrency, :amount_crypto, :price_usd, :total_usd, :account_id]
+  @required_fields [:type, :cryptocurrency, :amount_crypto, :price_usd, :account_id]
   @optional_fields [:amount_usd]
 
   @doc """
@@ -45,11 +43,9 @@ defmodule CryptoStream.Trading.Domain.Transaction do
     |> validate_inclusion(:type, ["buy", "sell"])
     |> validate_number(:amount_crypto, greater_than: 0)
     |> validate_number(:price_usd, greater_than: 0)
-    |> validate_number(:total_usd, greater_than: 0)
     |> foreign_key_constraint(:account_id)
     |> update_change(:amount_crypto, &Decimal.round(&1, 8))
     |> update_change(:amount_usd, &Decimal.round(&1, 8))
-    |> update_change(:total_usd, &Decimal.round(&1, 8))
     |> update_change(:price_usd, &Decimal.round(&1, 8))
   end
 

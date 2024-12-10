@@ -13,7 +13,6 @@ defmodule CryptoStreamWeb.TradingJSONTest do
         amount_usd: D.new("1000.00"),
         amount_crypto: D.new("0.02"),
         price_usd: D.new("50000.00"),
-        total_usd: D.new("1000.00"),
         account_id: 1,
         inserted_at: ~N[2024-01-01 00:00:00]
       }
@@ -26,7 +25,6 @@ defmodule CryptoStreamWeb.TradingJSONTest do
           amount_usd: amount_usd,
           amount_crypto: amount_crypto,
           price_usd: price,
-          total_usd: total,
           account_id: 1,
           inserted_at: ~N[2024-01-01 00:00:00]
         }
@@ -35,7 +33,6 @@ defmodule CryptoStreamWeb.TradingJSONTest do
       assert Decimal.equal?(amount_usd, transaction.amount_usd)
       assert Decimal.equal?(amount_crypto, transaction.amount_crypto)
       assert Decimal.equal?(price, transaction.price_usd)
-      assert Decimal.equal?(total, transaction.total_usd)
     end
   end
 
@@ -49,18 +46,16 @@ defmodule CryptoStreamWeb.TradingJSONTest do
           amount_usd: D.new("1000.00"),
           amount_crypto: D.new("0.02"),
           price_usd: D.new("50000.00"),
-          total_usd: D.new("1000.00"),
           account_id: 1,
           inserted_at: ~N[2024-01-01 00:00:00]
         },
         %{
           id: 2,
           type: "buy",
-          cryptocurrency: "BTC",
-          amount_usd: D.new("2000.00"),
-          amount_crypto: D.new("0.04"),
-          price_usd: D.new("50000.00"),
-          total_usd: D.new("2000.00"),
+          cryptocurrency: "ETH",
+          amount_usd: D.new("500.00"),
+          amount_crypto: D.new("0.25"),
+          price_usd: D.new("2000.00"),
           account_id: 1,
           inserted_at: ~N[2024-01-01 00:00:00]
         }
@@ -77,7 +72,6 @@ defmodule CryptoStreamWeb.TradingJSONTest do
         assert Decimal.equal?(D.new(rendered.amount_usd), original.amount_usd)
         assert Decimal.equal?(D.new(rendered.amount_crypto), original.amount_crypto)
         assert Decimal.equal?(D.new(rendered.price_usd), original.price_usd)
-        assert Decimal.equal?(D.new(rendered.total_usd), original.total_usd)
         assert rendered.account_id == original.account_id
         assert rendered.inserted_at == original.inserted_at
       end)

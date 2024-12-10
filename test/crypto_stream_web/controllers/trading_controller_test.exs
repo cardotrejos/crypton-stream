@@ -101,10 +101,7 @@ defmodule CryptoStreamWeb.TradingControllerTest do
         "cryptocurrency" => "BTC"
       })
 
-      assert json_response(conn, 422) == %{
-        "error" => "invalid_request",
-        "details" => "Invalid request"
-      }
+      assert json_response(conn, 422) == %{"details" => "Amount is required", "error" => "invalid_request"}
     end
 
     test "fails with both USD and crypto amounts provided", %{conn: conn} do

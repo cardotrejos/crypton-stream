@@ -15,7 +15,14 @@ defmodule CryptoStream.Trading.Domain.TradingService do
     with {:ok, account} <- TradingRepository.get_account(account),
          :ok <- validate_balance(account, amount_usd),
          crypto_amount = D.div(amount_usd, price_usd),
-         attrs <- Transaction.new_buy(cryptocurrency, crypto_amount, amount_usd, price_usd, account),
+         attrs = %{
+           type: "buy",
+           cryptocurrency: cryptocurrency,
+           amount_crypto: crypto_amount,
+           amount_usd: amount_usd,
+           price_usd: price_usd,
+           account_id: account.id
+         },
          {:ok, transaction} <- TradingRepository.create_transaction(attrs),
          new_balance = D.sub(account.balance_usd, amount_usd),
          {:ok, _updated_account} <- TradingRepository.update_account_balance(account, new_balance) do
