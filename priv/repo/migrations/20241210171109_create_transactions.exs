@@ -6,6 +6,7 @@ defmodule CryptoStream.Repo.Migrations.CreateTransactions do
       add :type, :string, null: false
       add :cryptocurrency, :string, null: false
       add :amount_crypto, :decimal, null: false
+      add :amount_usd, :decimal, precision: 20, scale: 8, null: true
       add :price_usd, :decimal, null: false
       add :total_usd, :decimal, null: false
       add :account_id, references(:accounts, on_delete: :delete_all), null: false

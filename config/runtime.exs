@@ -9,16 +9,22 @@ if config_env() == :dev do
 end
 
 # Configure Guardian for all environments
-guardian_secret_key =
-  System.get_env("GUARDIAN_SECRET_KEY") ||
-    raise """
-    environment variable GUARDIAN_SECRET_KEY is missing.
-    You can generate one by calling: mix guardian.gen.secret
-    """
+if config_env() == :test do
+  config :crypto_stream, CryptoStreamWeb.Auth.Guardian,
+    issuer: "crypto_stream",
+    secret_key: "test_secret_key_for_testing_only_do_not_use_in_production"
+else
+  guardian_secret_key =
+    System.get_env("GUARDIAN_SECRET_KEY") ||
+      raise """
+      environment variable GUARDIAN_SECRET_KEY is missing.
+      You can generate one by calling: mix guardian.gen.secret
+      """
 
-config :crypto_stream, CryptoStream.Guardian,
-  issuer: "crypto_stream",
-  secret_key: guardian_secret_key
+  config :crypto_stream, CryptoStreamWeb.Auth.Guardian,
+    issuer: "crypto_stream",
+    secret_key: guardian_secret_key
+end
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the

@@ -29,7 +29,7 @@ defmodule CryptoStreamWeb.TradingController do
             cryptocurrency: %OpenApiSpex.Schema{type: :string, description: "Cryptocurrency symbol"},
             amount_crypto: %OpenApiSpex.Schema{type: :string, description: "Amount of cryptocurrency to buy"}
           }
-        }
+        },
       ]
     }},
     responses: [
@@ -62,17 +62,33 @@ defmodule CryptoStreamWeb.TradingController do
       Map.has_key?(params, "amount_crypto") ->
         buy_with_crypto(conn, cryptocurrency, params["amount_crypto"])
 
+      Map.has_key?(params, "amount") ->
+        case params["amount"] do
+          amount when is_binary(amount) ->
+            if String.contains?(amount, "$") do
+              # If amount starts with $, treat as USD amount
+              buy_with_usd(conn, cryptocurrency, String.replace(amount, "$", ""))
+            else
+              # Otherwise treat as crypto amount
+              buy_with_crypto(conn, cryptocurrency, amount)
+            end
+          _ ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{error: "invalid_request", details: "Invalid amount format"})
+        end
+
       true ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: "invalid_request", details: "Invalid request"})
+        |> json(%{error: "invalid_request", details: "Amount is required"})
     end
   end
 
   def buy(conn, _) do
     conn
     |> put_status(:unprocessable_entity)
-    |> json(%{error: "invalid_request", details: "Invalid request"})
+    |> json(%{error: "invalid_request", details: "Cryptocurrency is required"})
   end
 
   defp buy_with_usd(conn, cryptocurrency, amount_usd) do
