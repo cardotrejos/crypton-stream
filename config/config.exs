@@ -41,11 +41,15 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Configure Guardian
-config :crypto_stream, CryptoStream.Guardian,
-  issuer: "crypto_stream",
-  secret_key: "jJ4GgaR7LldJV7eGborygPlJ9RvrFBFNaPndlTkg02epdpi0DhQ5kI8lOShPttCT" # Replace this with a secure secret key in production
+# Configure Guardian auth pipeline
+config :crypto_stream, CryptoStream.Guardian.AuthPipeline,
+  module: CryptoStream.Guardian,
+  error_handler: CryptoStream.Guardian.AuthErrorHandler
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+if config_env() == :test do
+  import_config "test.secret.exs"
+end

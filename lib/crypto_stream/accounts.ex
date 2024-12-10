@@ -1,41 +1,81 @@
 defmodule CryptoStream.Accounts do
+  @moduledoc """
+  The Accounts context.
+  This module serves as the public API for account-related operations,
+  delegating to the domain layer for business logic.
+  """
+
   alias CryptoStream.Repo
-  alias CryptoStream.Accounts.{User, Account}
-  import Ecto.Changeset
+  alias CryptoStream.Accounts.Domain.{User, Authentication, AccountManager}
+  alias Ecto.Multi
 
-  def get_user(id), do: Repo.get(User, id)
-  def get_user_by_email(email), do: Repo.get_by(User, email: email)
+  @doc """
+  Gets a user by ID.
+  """
+  def get_user(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {id, ""} -> get_user(id)
+      _ -> nil
+    end
+  end
 
+  def get_user(id) when is_integer(id) do
+    Repo.get(User, id)
+  end
+
+  def get_user(_), do: nil
+
+  @doc """
+  Gets a user by email.
+  """
+  def get_user_by_email(email), do: Authentication.get_user_by_email(email)
+
+  @doc """
+  Gets an account by ID.
+  """
+  def get_account(id), do: AccountManager.get_account(id)
+
+  @doc """
+  Gets an account by user ID.
+  """
+  def get_account_by_user_id(user_id) do
+    with user when not is_nil(user) <- get_user(user_id) do
+      AccountManager.get_account_by_user(user)
+    else
+      nil -> {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Registers a new user with the given attributes.
+  Creates an associated trading account with initial balance.
+  """
   def register_user(attrs \\ %{}) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:user, User.changeset(%User{}, attrs))
-    |> Ecto.Multi.insert(:account, fn %{user: user} ->
-      %Account{}
-      |> cast(%{balance_usd: "10000.00", user_id: user.id}, [:balance_usd, :user_id])
-      |> validate_required([:balance_usd, :user_id])
+    Multi.new()
+    |> Multi.insert(:user, User.changeset(%User{}, attrs))
+    |> Multi.run(:account, fn _repo, %{user: user} ->
+      AccountManager.create_account(user)
     end)
     |> Repo.transaction()
     |> case do
       {:ok, %{user: user, account: account}} -> 
-        user = %{user | account: account}
-        {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
-      {:error, :account, changeset, _} -> {:error, changeset}
+        {:ok, %{user | account: account}}
+      {:error, operation, changeset, _changes} -> 
+        {:error, {operation, changeset}}
     end
   end
 
+  @doc """
+  Updates an account's balance.
+  """
+  def update_account_balance(account, new_balance) do
+    AccountManager.update_balance(account, new_balance)
+  end
+
+  @doc """
+  Authenticates a user with email and password.
+  """
   def authenticate_user(email, password) do
-    user = get_user_by_email(email)
-    |> Repo.preload(:account)  
-    
-    case user do
-      nil -> {:error, :invalid_credentials}
-      user ->
-        if Bcrypt.verify_pass(password, user.password_hash) do
-          {:ok, user}
-        else
-          {:error, :invalid_credentials}
-        end
-    end
+    Authentication.authenticate(email, password)
   end
 end

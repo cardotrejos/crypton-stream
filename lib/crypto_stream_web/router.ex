@@ -34,16 +34,24 @@ defmodule CryptoStreamWeb.Router do
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
   end
 
+  scope "/api/swagger" do
+    pipe_through :api
+    get "/", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+  end
+
   scope "/api", CryptoStreamWeb do
     pipe_through :api
-    get "/prices", MarketController, :get_prices
-    get "/historical/:coin_id", MarketController, :get_historical_prices
+
     post "/register", AuthController, :register
     post "/login", AuthController, :login
+
+    get "/prices", MarketController, :get_prices
+    get "/historical/:coin_id", MarketController, :get_historical_prices
   end
 
   scope "/api", CryptoStreamWeb do
     pipe_through [:api, :auth]
+
     post "/trading/buy", TradingController, :buy
     get "/trading/transactions", TradingController, :list_transactions
   end
