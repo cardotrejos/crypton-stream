@@ -76,7 +76,12 @@ To set up the project locally, follow these steps:
    mix ecto.setup
    ```
 
-4. Start the server:
+4. Setup environment variables: (this was sended via email)
+   ```bash
+   cp .env.example .env
+   ``` 
+
+5. Start the server:
    ```bash
    mix phx.server
    ```
