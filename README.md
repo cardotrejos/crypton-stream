@@ -71,17 +71,22 @@ To set up the project locally, follow these steps:
    mix deps.get
    ```
 
-3. Set up the database:
+4. Run docker compose: (this will start the database for both development and test environments)
+   ```bash
+   docker compose up -d
+   ```
+
+5. Set up the database:
    ```bash
    mix ecto.setup
    ```
 
-4. Setup environment variables: (this was sended via email)
+6. Setup environment variables: (this was sended via email)
    ```bash
    cp .env.example .env
    ``` 
 
-5. Start the server:
+7. Start the server:
    ```bash
    mix phx.server
    ```
@@ -89,6 +94,7 @@ To set up the project locally, follow these steps:
 ## Testing
 
 Run the test suite to ensure everything is working correctly:
+(Make sure to run `docker compose up -d` first)
 
 ```bash
 mix test
