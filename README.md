@@ -100,6 +100,9 @@ Swagger UI can be accessed at [localhost:4000/api/swaggerui](http://localhost:40
 3. Trading endpoints can be tested by clicking on the "Try it out" button for each endpoint. (This requires authentication)
 
 4. For authentication, click on the "Authorize" button to log in with the credentials provided in the Login Request section of the "Try it out" modal. Here is an example of a successful login:
+   - Go to the register endpoint and register a new user(or login with the example user)
+   - Copy the token
+   - Go to Autorize button and paste there
 
 ![Screenshot 2024-12-10 at 6 03 49 PM](https://github.com/user-attachments/assets/23607d38-0c67-4afb-9356-6dda703078a1)
 ![Screenshot 2024-12-10 at 6 03 54 PM](https://github.com/user-attachments/assets/e1bcdb2f-b31d-49db-83d8-20a065bac16a)
