@@ -47,6 +47,7 @@ defmodule CryptoStreamWeb.Router do
 
     get "/prices", MarketController, :get_prices
     get "/historical/:coin_id", MarketController, :get_historical_prices
+    get "/notifications/stream", NotificationController, :index
   end
 
   scope "/api", CryptoStreamWeb do
